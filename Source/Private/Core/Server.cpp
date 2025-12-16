@@ -1,4 +1,4 @@
-// Copyright BattleDash. All Rights Reserved.
+
 
 #define _WINSOCKAPI_
 #include <Core/Server.h>
@@ -39,7 +39,7 @@
 #define OFFSET_CLIENT_INIT_NETWORK HOOK_OFFSET(0)
 #define OFFSET_CLIENT_CONNECTTOADDRESS HOOK_OFFSET(0x140559CD0)
 
-#define OFFSET_SERVER_PATCH 0
+#define OFFSET_SERVER_PATCH (0)
 
 namespace Kyber
 {

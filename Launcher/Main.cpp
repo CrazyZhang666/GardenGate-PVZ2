@@ -1,5 +1,4 @@
-﻿﻿// Copyright BattleDash. All Rights Reserved.
-
+﻿
 #include <stdint.h>
 #include <Render/Fonts/BattlefrontUIRegular.h>
 
