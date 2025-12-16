@@ -1,25 +1,20 @@
-﻿
+// Copyright BattleDash. All Rights Reserved.
+
 #include <stdint.h>
 #include <Render/Fonts/BattlefrontUIRegular.h>
 
 #define _WINSOCKAPI_
 #define CPPHTTPLIB_OPENSSL_SUPPORT
-#define GLFW_EXPOSE_NATIVE_WIN32
 #include <Windows.h>
-
-//#include "Libraries/Images/resource.h"
 
 #include <imgui/imgui.h>
 #include <imgui/imgui_impl_glfw.h>
 #include <imgui/imgui_impl_opengl3.h>
-//#include <tchar.h>
-
 #include <stdio.h>
 #if defined(IMGUI_IMPL_OPENGL_ES2)
     #include <GLES2/gl2.h>
 #endif
 #include <GLFW/glfw3.h>
-#include <GLFW/glfw3native.h>
 
 #include <cpp-httplib/httplib.h>
 #include <experimental/thread_pool>
@@ -32,9 +27,6 @@
     #pragma comment(lib, "legacy_stdio_definitions")
 #endif
 
-bool autoInjectEnabled = false;
-int processDetectedTime = -1;
-
 static void GlfwErrorCallback(int error, const char* description)
 {
     fprintf(stderr, "Glfw Error %d: %s\n", error, description);
@@ -45,34 +37,13 @@ std::experimental::thread_pool threadPool(4);
 bool dllUpdating = false;
 
 std::filesystem::path kyberDllPath;
-
-void DownloadDLL()
-{
-    dllUpdating = true;
-    std::experimental::post(threadPool, [&]() {
-        auto response = apiClient.Get("/api/downloads/distributions/stable/dll");
-        if (response && response->status == 200)
-        {
-            std::ofstream out(kyberDllPath, std::ios::binary);
-            out.write(response->body.c_str(), response->body.size());
-            out.close();
-        }
-        else
-        {
-            std::stringstream ss;
-            ss << "Failed to download Auric.dll: " << std::to_string(response->status);
-            MessageBoxA(NULL, ss.str().c_str(), "GardenGate Launcher", MB_OK);
-        }
-        dllUpdating = false;
-    });
-}
-
+// Removed DownloadDLL because i'll just bundle it in the release.
+// might add back later for updates if this works
 void InjectDLL()
 {
-
     if (!std::filesystem::exists(kyberDllPath))
     {
-        DownloadDLL();
+        MessageBoxA(NULL, "Make sure Kyber.dll is in your shi", "GardenGate Launcher", MB_OK);
         return;
     }
 
@@ -107,15 +78,15 @@ void InjectDLL()
         MessageBoxA(NULL, "Failed to get address of LoadLibraryA", "GardenGate Launcher", MB_OK);
         return;
     }
-    std::string file = kyberDllPath.string();
-    LPVOID remoteDLL = VirtualAllocEx(hProc, NULL, file.size(), MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+
+    LPVOID remoteDLL = VirtualAllocEx(hProc, NULL, file.string().size(), MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
     if (remoteDLL == NULL)
     {
         MessageBoxA(NULL, "Failed to allocate memory in PVZ.Main_Win64_Retail.exe", "GardenGate Launcher", MB_OK);
         return;
     }
 
-    if (!WriteProcessMemory(hProc, remoteDLL, file.c_str(), file.size(), NULL))
+    if (!WriteProcessMemory(hProc, remoteDLL, file.string().c_str(), file.string().size(), NULL))
     {
         MessageBoxA(NULL, "Failed to write memory in PVZ.Main_Win64_Retail.exe", "GardenGate Launcher", MB_OK);
         return;
@@ -131,33 +102,6 @@ void InjectDLL()
     WaitForSingleObject(remoteThread, INFINITE);
     VirtualFreeEx(hProc, remoteDLL, 0, MEM_RELEASE);
     CloseHandle(remoteThread);
-}
-void LaunchGame()
-{
-    STARTUPINFO si = { sizeof(STARTUPINFO) };
-    PROCESS_INFORMATION pi;
-    std::string gamePath = "E:\\EA Games\\Plants vs Zombies Garden Warfare\\PVZ.Main_Win64_Retail.exe"; // Update with actual path
-
-    if (!CreateProcess(gamePath.c_str(), NULL, NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi))
-    {
-        MessageBoxA(NULL, "Failed to launch PVZ.Main_Win64_Retail.exe", "GardenGate Launcher", MB_OK);
-    }
-    else
-    {
-        CloseHandle(pi.hProcess);
-        CloseHandle(pi.hThread);
-    }
-}
-
-std::filesystem::path GetDllPath()
-{
-    char exePath[MAX_PATH];
-    if (GetModuleFileNameA(nullptr, exePath, MAX_PATH))
-    {
-        std::filesystem::path exeDirectory = std::filesystem::path(exePath).parent_path();
-        return exeDirectory / "Kyber.dll";
-    }
-    return std::filesystem::path();
 }
 
 int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
@@ -177,15 +121,6 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int n
         return 1;
     }
 
-    /* HICON hIcon = LoadIcon(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_MYICON));
-
-     if (hIcon)
-     {
-         HWND hwnd = glfwGetWin32Window(window);
-         // Set the big and small icon
-         SendMessage(hwnd, WM_SETICON, ICON_BIG, (LPARAM)hIcon);
-         SendMessage(hwnd, WM_SETICON, ICON_SMALL, (LPARAM)hIcon);
-     }*/
     glfwMakeContextCurrent(window);
     glfwSwapInterval(1); // Enable vsync
 
@@ -317,8 +252,8 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int n
 
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
-    // DownloadDLL();
-    kyberDllPath = GetDllPath();
+    //DownloadDLL();
+    kyberDllPath = std::filesystem::temp_directory_path() / "GardenGate" / "Kyber.dll";
     std::string kyberDllPathStr = kyberDllPath.u8string();
 
     while (!glfwWindowShouldClose(window))
@@ -329,47 +264,28 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int n
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        static bool isInjecting = false;
-        static float injectStartTS = 0.0f;
-        static std::string status = "Idle";
+        if (static_cast<int>(glfwGetTime()) % 5 == 0)
+        {
+            //DownloadDLL();
+        }
 
-        // ImGui UI
         ImGui::SetNextWindowSize(io.DisplaySize);
         ImGui::SetNextWindowPos(ImVec2(0, 0));
+       
+        ImGui::Begin("Hello, world!", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_AlwaysAutoResize);
+        ImGui::Text("Kyber DLL Path: %s", kyberDllPathStr.c_str());
 
-        ImGui::Begin("Auric Launcher", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_AlwaysAutoResize);
+        ImGui::Text("This is some useful text.");
 
-        ImGui::TextWrapped("Please ensure Kyber.dll is next to GardenGateLauncher.exe.\n"
-                           "Click 'Inject' to start scanning for PVZ GW1, then inject.");
-
-        ImGui::Separator();
-        ImGui::Text("Status: %s", status.c_str());
-        ImGui::Separator();
-
-        // Disable the Auto Inject button while "isInjecting" is true
-        if (isInjecting)
-            ImGui::BeginDisabled();
-        if (ImGui::Button("Inject", ImVec2(120, 0)))
+        if (ImGui::Button("Inject"))
         {
-            autoInjectEnabled = true;
-            isInjecting = true;
-            status = "Searching for 'PVZ.Main_Win64_Retail.exe'…";
-            processDetectedTime = -1;
-            injectStartTS = static_cast<float>(glfwGetTime());
+            InjectDLL();
         }
-        if (isInjecting)
-            ImGui::EndDisabled();
 
-        ImGui::SameLine();
-
-        // FPS Display
-        ImGui::Dummy(ImVec2(0, 5));
         ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-
         ImGui::End();
 
         ImGui::Render();
-
         int display_w, display_h;
         glfwGetFramebufferSize(window, &display_w, &display_h);
         glViewport(0, 0, display_w, display_h);
@@ -378,51 +294,8 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int n
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
         glfwSwapBuffers(window);
-
-        if (autoInjectEnabled)
-        {
-            static int lastAttemptTime = 0;
-            int currentTime = static_cast<int>(glfwGetTime());
-            if (currentTime - lastAttemptTime >= 1) // check ~every 1ms
-            {
-                lastAttemptTime = currentTime;
-
-                // 1) Find the process
-                if (processDetectedTime == -1)
-                {
-                    DWORD pid = 0;
-                    HANDLE snap = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
-                    PROCESSENTRY32 pe = { 0 };
-                    pe.dwSize = sizeof(PROCESSENTRY32);
-                    if (Process32First(snap, &pe))
-                    {
-                        do
-                        {
-                            if (strcmp(pe.szExeFile, "Anthem.exe") == 0)
-                            {
-                                pid = pe.th32ProcessID;
-                                processDetectedTime = currentTime; // mark that we saw it
-                                status = "Found Battlefront pid=" + std::to_string(pid) + ". Waiting to inject...";
-                                break;
-                            }
-                        } while (Process32Next(snap, &pe));
-                    }
-                    CloseHandle(snap);
-                }
-
-                else if (currentTime - processDetectedTime >= 2)
-                {
-                    status = "Injecting DLL…";
-                    InjectDLL();
-
-                    status = "Injection complete!";
-                    autoInjectEnabled = false;
-                    isInjecting = false;
-                    processDetectedTime = -1;
-                }
-            }
-        }
     }
+
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
@@ -432,5 +305,3 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int n
 
     return 0;
 }
-
-// glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
