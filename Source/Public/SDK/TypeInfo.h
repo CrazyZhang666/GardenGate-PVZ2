@@ -27,6 +27,13 @@ enum ClientState
     ClientState_Shutdown = 16,
     ClientState_None = 17
 };
+enum ServerTypeValues
+{
+    ServerType_OFFICIAL = 0,
+    ServerType_RANKED = 1,
+    ServerType_UNRANKED = 2,
+    ServerType_PRIVATE = 3
+};
 enum SecureReason
 {
     SecureReason_Ok,
@@ -731,4 +738,5 @@ public:
     bool InProcReplicationEnabled;                     // 0x0094
     char _0x0095[3];                                   // 0x0095
 };
+
 } // namespace Kyber
