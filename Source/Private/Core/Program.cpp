@@ -111,7 +111,7 @@ void Program::InitializeGameHooks()
     Hook::ApplyQueuedActions();
 }
 
-__int64 ClientStateChangeHk(__int64 inst, ClientState currentClientState, ClientState lastClientState)
+  __int64 ClientStateChangeHk(__int64 inst, ClientState currentClientState) //--- no more third arg
 {
     static const auto trampoline = HookManager::Call(ClientStateChangeHk);
     g_program->m_clientState = currentClientState;
@@ -143,7 +143,7 @@ __int64 ClientStateChangeHk(__int64 inst, ClientState currentClientState, Client
     {
         server->InitializeGameSettings();
     }
-    return trampoline(inst, currentClientState, lastClientState);
+    return trampoline(inst, currentClientState);
 }
 
 __int64 GetSettingsObjectHk(__int64 inst, const char* identifier)

@@ -20,13 +20,13 @@ struct GameMode
 //clang-format off
 // What if you wanted to format something nicely, but clang-format said:
 static GameMode s_game_modes[] = { 
-    { "Coop0", "CO-OP TEST",
+    { "Coop0", "COOP TEST",
     {
-        "_pvz/Levels/Coastal/Level_COOP_Coastal/Level_COOP_Coastal" // level path
+        "_pvz/Levels/COOP_Suburbia/Level_COOP_Suburbia/Level_COOP_Suburbia" // level path
     },
     { {
-        "_pvz/Levels/Coastal/Level_COOP_Coastal/Level_COOP_Coastal",
-        "SHARKBITE SHORES" // display name override
+        "_pvz/Levels/COOP_Suburbia/Level_COOP_Suburbia/Level_COOP_Suburbia",
+        "Surburbia" // display name override
     } } } };
 
 

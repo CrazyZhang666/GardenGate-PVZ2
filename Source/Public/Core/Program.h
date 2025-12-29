@@ -14,7 +14,7 @@
 
 namespace Kyber
 {
-__int64 ClientStateChangeHk(__int64 a1, ClientState currentClientState, ClientState lastClientState);
+__int64 ClientStateChangeHk(__int64 a1, ClientState currentClientState); //--- remove third arg
 __int64 GetSettingsObjectHk(__int64 inst, const char* identifier);
 
 class Program
@@ -35,9 +35,11 @@ public:
     __int64 ChangeClientState(ClientState currentClientState)
     {
         return ClientStateChangeHk(
-            *reinterpret_cast<__int64*>(*reinterpret_cast<__int64*>(((__int64 (*)(void))OFFSET_GET_CLIENT_INSTANCE)() + 0x28) + 0x8),
-            currentClientState, m_clientState);
+            *reinterpret_cast<__int64*>(0x141EFFFE0), //--- use global reference to whatever the hell instance it needs
+            currentClientState);
     }
+
+
 
     HMODULE m_module;
     APIService* m_api;
