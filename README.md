@@ -8,12 +8,13 @@ This is simply adding GW1 (potentially GW2) dedicated server support.
 * Server joining menu
 * Kyber Proxy removed due to issues.
 * NAT Punch-Through system
-* In-Game server browser (when this works lol)
+* In-Game server browser
 * Per-player team swapping
 * Player kicking/moderation (maybe not possible, can't find the offsets)
 
 What isn't done:
-* Lmao like, everything else
+* Fix crashes caused by; lnck,cmms
+* Get an unlocker to work with it
 
 Due to security reasons, i'd reccomend keeping multiplayer servers on LAN over things like RadminVPN if things work.
 
