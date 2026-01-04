@@ -19,15 +19,15 @@ What's not done:
 
 ## Credits
 
-RaT
+- RaT
 
-nocss
+- nocss
 
-twig
+- twig
 
-blueballoon
+- blueballoon
 
-puro420
+- puro420
 
 ### Projects
 Following open-source projects were used:
