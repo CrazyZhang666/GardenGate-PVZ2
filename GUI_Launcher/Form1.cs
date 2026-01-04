@@ -31,12 +31,26 @@ namespace Launcher
             {
                 ModDataComboBox.Items.Add(Path.GetFileName(dir));
             }
-
-                ModDataComboBox.SelectedIndex = 0;
+            if (ModDataComboBox.Items.Count > 0) { 
+                ModDataComboBox.SelectedIndex = 0; 
+            }
         }
 
         private bool IsDarkMode()
         {
+            string? gtkTheme = Environment.GetEnvironmentVariable("GTK_THEME");
+
+            if (!string.IsNullOrEmpty(gtkTheme))
+            {
+                string lower = gtkTheme.ToLowerInvariant();
+
+                if (lower.Contains(":dark"))
+                    return true;
+
+                if (lower.Contains(":light"))
+                    return false;
+            }
+
             using var key = Registry.CurrentUser.OpenSubKey(
                 @"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize");
 
@@ -86,18 +100,28 @@ namespace Launcher
 
         private void SaveConfig()
         {
-            List<string> lines = new()
-            {
-                UsernameTextBox.Text,
-                ServerIpTextBox.Text,
-                GamePathTextBox.Text,
-                ModDataCheckBox.Checked.ToString(),
-                ModDataComboBox.SelectedItem?.ToString() ?? "",
-                ArgsTextBox.Text
-            };
+            var lines = File.Exists("config.txt")
+                ? File.ReadAllLines("config.txt").ToList()
+                : new List<string>();
+
+            while (lines.Count < 7)
+                lines.Add("");
+
+            lines[0] = UsernameTextBox.Text;
+            lines[1] = ServerIpTextBox.Text;
+            lines[3] = ModDataCheckBox.Checked.ToString();
+            lines[4] = ModDataComboBox.SelectedItem?.ToString() ?? "";
+            lines[5] = ArgsTextBox.Text;
+
+            bool isGW2 = GW2Radio.Checked;
+            if (isGW2)
+                lines[6] = GamePathTextBox.Text;   
+            else
+                lines[2] = GamePathTextBox.Text;   
 
             File.WriteAllLines("config.txt", lines);
         }
+
 
         private void LoadConfig()
         {
@@ -108,32 +132,84 @@ namespace Launcher
 
             if (lines.Length > 0) UsernameTextBox.Text = lines[0];
             if (lines.Length > 1) ServerIpTextBox.Text = lines[1];
-            if (lines.Length > 2) GamePathTextBox.Text = lines[2];
+
+            string savedModPack = lines.Length > 4 ? lines[4] : "";
+
             if (lines.Length > 3 && bool.TryParse(lines[3], out bool modEnabled))
                 ModDataCheckBox.Checked = modEnabled;
-            if (lines.Length > 4 && ModDataComboBox.Items.Contains(lines[4]))
-                ModDataComboBox.SelectedItem = lines[4];
+
             if (lines.Length > 5)
                 ArgsTextBox.Text = lines[5];
 
+            bool isGW2 = GW2Radio.Checked;
+
+            GamePathTextBox.Text =
+                isGW2 && lines.Length > 6 ? lines[6] :
+                !isGW2 && lines.Length > 2 ? lines[2] :
+                "";
+
             if (File.Exists(GamePathTextBox.Text))
+            {
                 LoadModData(GamePathTextBox.Text);
 
-            
-        }
-
-        private void BrowseGameButton_Click(object sender, EventArgs e)
-        {
-            using OpenFileDialog Dialog = new OpenFileDialog();
-            Dialog.Filter = "PVZGW1|PVZ.Main_Win64_Retail.exe";
-
-            if (Dialog.ShowDialog() == DialogResult.OK)
-            {
-                GamePathTextBox.Text = Dialog.FileName;
-                LoadModData(Dialog.FileName);
+                if (!string.IsNullOrWhiteSpace(savedModPack) && ModDataComboBox.Items.Contains(savedModPack))
+                    ModDataComboBox.SelectedItem = savedModPack;
             }
         }
 
+
+        private void BrowseGameButton_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog dlg = new OpenFileDialog();
+
+            bool isGW2 = GW2Radio.Checked;
+
+
+            dlg.Filter = isGW2
+                ? "PVZGW2|GW2.PreEAAC.exe"
+                : "PVZGW1|PVZ.Main_Win64_Retail.exe";
+
+            if (dlg.ShowDialog() != DialogResult.OK)
+                return;
+
+            GamePathTextBox.Text = dlg.FileName;
+
+            var lines = File.Exists("config.txt")
+                ? File.ReadAllLines("config.txt").ToList()
+                : Enumerable.Repeat("", 7).ToList();
+
+            while (lines.Count < 7)
+                lines.Add("");
+
+            lines[isGW2 ? 6 : 2] = dlg.FileName;
+
+            File.WriteAllLines("config.txt", lines);
+        }
+
+        private void GameRadioChanged(object sender, EventArgs e)
+        {
+            if (!((RadioButton)sender).Checked)
+                return;
+
+            if (!File.Exists("config.txt"))
+            {
+                GamePathTextBox.Text = "";
+                ModDataComboBox.Items.Clear();
+                return;
+            }
+
+            var lines = File.ReadAllLines("config.txt");
+            bool isGW2 = GW2Radio.Checked;
+
+            GamePathTextBox.Text =
+                isGW2 && lines.Length > 6 ? lines[6] :
+                !isGW2 && lines.Length > 2 ? lines[2] :
+                "";
+
+            ModDataComboBox.Items.Clear();
+            if (File.Exists(GamePathTextBox.Text))
+                LoadModData(GamePathTextBox.Text);
+        }
         private void LaunchButton_Click(object sender, EventArgs e)
         {
             if (!File.Exists(GamePathTextBox.Text))
@@ -148,7 +224,7 @@ namespace Launcher
                 argList.Add(ArgsTextBox.Text.Trim());
 
             if (!string.IsNullOrWhiteSpace(UsernameTextBox.Text))
-                argList.Add($"-playerName {UsernameTextBox.Text}");
+                argList.Add($"-name {UsernameTextBox.Text}");
 
             if (!string.IsNullOrWhiteSpace(ServerIpTextBox.Text))
                 argList.Add($"-Client.ServerIp {ServerIpTextBox.Text}");
