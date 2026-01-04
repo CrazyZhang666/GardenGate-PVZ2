@@ -7,14 +7,14 @@ Experimental private servers for Plants vs. Zombies Garden Warfare 1 & 2
 
 ------
 What's done:
-* Offsets changed
+* Offsets
 * Hosting servers
 * Joining
 * Custom unlocker mod that unlocks everything
 
 What's not done:
 * Fix rare crashes caused by; lnck,cmms
-* GUI launcher
+* Server passwords
 * Player kicking/moderation
 
 ## Credits
