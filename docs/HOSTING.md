@@ -36,7 +36,7 @@ Offline mode + GardenGate Extras (brekko, modified)
 
 AIHax (Nam)
 
-<img src="./Assets/Load_Order.png" />
+<img src="./Assets/Load_Order.PNG" />
 
 3. Launch the game with the launcher (keep the ip section empty)
 
