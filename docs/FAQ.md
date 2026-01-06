@@ -12,6 +12,9 @@ No it doesn't.
 ### I'm having issue X is this known?
 Check if it's been added to the what's not done part of [README.md](../README.md)
 
+### Do I need every mod the server I'm joining has?
+For small client sided mods like FOV changer not really, but big mods like project visionary will make it crash if you don't have them installed.
+
 ### How do I contribute?
 1. Fork the repository.
 2. Commit your changes.
