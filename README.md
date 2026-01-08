@@ -18,6 +18,7 @@ Experimental private servers for Plants vs. Zombies Garden Warfare 1 & 2
 * Integrate patcher to launcher for gw2
 * Fix trials of gnomus
 * Remove [annoying pop-ups](./Assets/pop-up_example.webp)
+* Fix return to backyard button
 
 ### [Discord server](https://discord.gg/sEs9NcUrF9)
 
