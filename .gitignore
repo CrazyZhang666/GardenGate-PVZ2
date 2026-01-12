@@ -299,6 +299,7 @@ __pycache__/
 *.kate-swp
 
 # Build stuff
-minhook
-build-minhook
+minhook/
+build-minhook/
 build-gg/
+
