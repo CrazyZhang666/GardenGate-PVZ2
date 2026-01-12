@@ -18,11 +18,12 @@ jobs:
             --package-parameters "--add Microsoft.VisualStudio.Workload.VCTools --includeRecommended" `
             -y
 
-      - name: Build Server
+      - name: Build
         shell: cmd
         run: |
           call "%ProgramFiles(x86)%\Microsoft Visual Studio\2022\BuildTools\VC\Auxiliary\Build\vcvars64.bat"
           cd Launhcer
+          dir
           mkdir build
           cd build
           cmake .. -G "Visual Studio 17 2022"
