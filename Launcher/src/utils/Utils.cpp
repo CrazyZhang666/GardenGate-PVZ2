@@ -411,7 +411,6 @@ namespace Utils {
 			LPVOID envBlock = nullptr;
 			if (!normalizedModDataPath.empty() && !isGW2) {
 				std::string envVarDir = "GAME_DATA_DIR=" + normalizedModDataPath;
-				std::string envVarPath = "GAME_DATA_PATH=" + normalizedModDataPath;
 				std::string envStr;
 				
 				LPCH envStrings = GetEnvironmentStringsA();
@@ -426,8 +425,6 @@ namespace Utils {
 				}
 				
 				envStr += envVarDir;
-				envStr += '\0';
-				envStr += envVarPath;
 				envStr += '\0';
 				envStr += '\0';
 				
