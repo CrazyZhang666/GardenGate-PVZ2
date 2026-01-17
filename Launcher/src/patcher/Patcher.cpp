@@ -34,8 +34,7 @@ bool Patcher::IsGW2Patched(const std::string& gamePath) {
     if (!fs::exists(backupExe)) return false;
 
     fs::path gameDir = fs::path(gamePath).parent_path();
-    return fs::exists(gameDir / "dinput8.dll") ||
-        fs::exists(gameDir / ("dinput8.dll" + std::string(DISABLED_DLL)));
+    return fs::exists(gameDir / "dinput8.dll");
 }
 
 bool Patcher::AutoPatchGW2(const std::string& gamePath, const std::string& patchFile, const std::string& dllFile, std::string& errorMessage)
@@ -49,26 +48,51 @@ bool Patcher::AutoPatchGW2(const std::string& gamePath, const std::string& patch
     if (!Utils::FileUtil::copy(gamePath, backupExe, errorMessage)) return false;
 
     fs::path dllTarget = fs::path(gamePath).parent_path() / "dinput8.dll";
-    if (!Utils::FileUtil::copy(dllFile, dllTarget.string(), errorMessage)) {
-        if (fs::exists(dllTarget)) {
-            std::string dllBackup = dllTarget.string() + ".old";
-            Utils::FileUtil::move_replace(dllTarget.string(), dllBackup, errorMessage);
-            Utils::FileUtil::copy(dllFile, dllTarget.string(), errorMessage);
+
+    std::error_code ec;
+    bool isSameFile = fs::exists(dllTarget) && fs::equivalent(dllFile, dllTarget, ec);
+
+    if (!isSameFile) {
+        if (!Utils::FileUtil::copy(dllFile, dllTarget.string(), errorMessage)) {
+            if (fs::exists(dllTarget)) {
+                std::string dllBackup = dllTarget.string() + ".old";
+                Utils::FileUtil::move_replace(dllTarget.string(), dllBackup, errorMessage);
+                Utils::FileUtil::copy(dllFile, dllTarget.string(), errorMessage);
+            }
+            else return false;
         }
-        else return false;
     }
 
     std::string tempOutput = gamePath + PATCHED;
     if (!run_xdelta(gamePath, patchFile, tempOutput, errorMessage)) {
         Utils::FileUtil::remove(backupExe);
-        Utils::FileUtil::remove(dllTarget.string());
+        if (!isSameFile) {
+            Utils::FileUtil::remove(dllTarget.string());
+        }
         return false;
     }
 
     if (!Utils::FileUtil::move_replace(tempOutput, gamePath, errorMessage)) {
         Utils::FileUtil::remove(backupExe);
-        Utils::FileUtil::remove(dllTarget.string());
+        if (!isSameFile) {
+            Utils::FileUtil::remove(dllTarget.string());
+        }
         return false;
+    }
+
+    fs::path gameDir = fs::path(gamePath).parent_path();
+    fs::path eaAntiCheat = gameDir / "EAAntiCheat.GameServiceLauncher.exe";
+    if (fs::exists(eaAntiCheat)) {
+        std::string eaDisabled = eaAntiCheat.string() + DISABLED_DLL;
+        if (fs::exists(eaDisabled)) Utils::FileUtil::remove(eaDisabled);
+        Utils::FileUtil::move_replace(eaAntiCheat.string(), eaDisabled, errorMessage);
+    }
+
+    fs::path installScript = gameDir / "installScript.vdf";
+    if (fs::exists(installScript)) {
+        std::string scriptDisabled = installScript.string() + DISABLED_DLL;
+        if (fs::exists(scriptDisabled)) Utils::FileUtil::remove(scriptDisabled);
+        Utils::FileUtil::move_replace(installScript.string(), scriptDisabled, errorMessage);
     }
 
     return true;
@@ -83,13 +107,22 @@ bool Patcher::RestoreGW2(const std::string& gamePath, std::string& errorMessage)
 
     if (!Utils::FileUtil::copy(backupExe, gamePath, errorMessage)) return false;
 
-    fs::path dllPath = fs::path(gamePath).parent_path() / "dinput8.dll";
+    fs::path gameDir = fs::path(gamePath).parent_path();
+    fs::path dllPath = gameDir / "dinput8.dll";
     if (fs::exists(dllPath)) {
-        std::string dllDisabled = dllPath.string() + DISABLED_DLL;
-        if (fs::exists(dllDisabled)) Utils::FileUtil::remove(dllDisabled);
-        if (!Utils::FileUtil::move_replace(dllPath.string(), dllDisabled, errorMessage)) {
-            Utils::FileUtil::remove(dllPath.string());
-        }
+        Utils::FileUtil::remove(dllPath.string());
+    }
+
+    fs::path eaAntiCheat = gameDir / "EAAntiCheat.GameServiceLauncher.exe";
+    std::string eaDisabled = eaAntiCheat.string() + DISABLED_DLL;
+    if (fs::exists(eaDisabled)) {
+        Utils::FileUtil::move_replace(eaDisabled, eaAntiCheat.string(), errorMessage);
+    }
+
+    fs::path installScript = gameDir / "installScript.vdf";
+    std::string scriptDisabled = installScript.string() + DISABLED_DLL;
+    if (fs::exists(scriptDisabled)) {
+        Utils::FileUtil::move_replace(scriptDisabled, installScript.string(), errorMessage);
     }
 
     Utils::FileUtil::remove(backupExe);
