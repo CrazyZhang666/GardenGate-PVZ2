@@ -37,22 +37,15 @@ winmm
 
 **<img src="./Assets/wine_not_supported.webp" />**
 
-### 2. Disable EA Anti-Cheat ###
-#### Navigate to the game's installation directory
-#### Rename the following files:
-`EAAntiCheat.GameServiceLauncher.exe` to `EAAntiCheat.GameServiceLauncher.exe.bak`
-
-`installScript.vdf` to `installScript.vdf.bak`
-
-### 3. Downgrade your game ###
+### 2. Downgrade your game ###
 Download the archive from [the releases](https://github.com/nocss42/GardenGate/releases) tab, launch it > go to patcher and press apply patch
 
-### 4. Install the mods in the right order ###
+### 3. Install the mods in the right order ###
 Use [this frosty mod manager](https://github.com/maniman303/FrostyToolsuite/releases) instead of the stock one as the stock one doesn't work with wine. Get the mods for gw2 [here](../Mods/GW2/GardenGate.fbpack)
 
 <img src="./Assets/load_order.webp" />
 
-### 6. Configure dlloverrides ###
+### 4. Configure dlloverrides ###
 Add the following launch option in Steam:
 ```
 WINEDLLOVERRIDES="dinput8=n,b;winmm=n,b" %command% -dataPath ModData/Default
@@ -67,7 +60,7 @@ winmm
 
 (They should be set to native,builtin)
 
-### 7. Launch the game ###
+### 5. Launch the game ###
 - Launch via the launcher if you own the game on EA App. If you own the game on steam just pass in the launch args yourself;
 
 ### Arguements ###
