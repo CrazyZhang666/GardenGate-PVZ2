@@ -16,7 +16,7 @@ Use [this gw1 compatible frosty mod manager](https://github.com/Twig6943/FrostyT
 Use `GAME_DATA_DIR` environment variable as ea app won't allow special characters like `/` as launch args
 
 ```
-GAME_DATA_DIR=path/to/ModData/Default WINEDLLOVERRIDES="dinput8=n,b;winmm=n,b" %command%
+GAME_DATA_DIR="path/to/ModData/Default" WINEDLLOVERRIDES="dinput8=n,b;winmm=n,b" %command%
 ```
 
 Open up winetricks > select gw1's pfx > select winecfg > go to libraries > add the following
@@ -27,7 +27,7 @@ winmm
 ```
 
 * Apply 
-* See arguements at the end of this file for joining
+- Launch via the launcher
 
 # Garden warfare 2/Battle for Neighborville
 ### 1. Install the game ###
@@ -50,7 +50,7 @@ Download the archive from [the releases](https://github.com/nocss42/GardenGate/r
 ### 4. Install the mods in the right order ###
 Use [this frosty mod manager](https://github.com/maniman303/FrostyToolsuite/releases) instead of the stock one as the stock one doesn't work with wine. Get the mods for gw2 [here](../Mods/GW2/GardenGate.fbpack)
 
-**<img src="./Assets/load_order.webp" />**
+<img src="./Assets/load_order.webp" />
 
 ### 6. Configure dlloverrides ###
 Add the following launch option in Steam:
@@ -67,8 +67,8 @@ winmm
 
 (They should be set to native,builtin)
 
-### 7. Start Garden warfare 2 ###
-- Launch gw2/bfn via the launcher if you own it on EA. If you own the game on steam just pass in the launch args yourself;
+### 7. Launch the game ###
+- Launch via the launcher if you own the game on EA App. If you own the game on steam just pass in the launch args yourself;
 
 ### Arguements ###
 `-name`
