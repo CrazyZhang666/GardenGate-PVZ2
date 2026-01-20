@@ -36,6 +36,10 @@ Experimental private servers for Plants vs. Zombies Garden Warfare 1,2 & Battle 
 
 - eshaydev
 
+- gargos69junior
+
+- werzdragon
+
 - puro420
 
 ### Third-Party
