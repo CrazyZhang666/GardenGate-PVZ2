@@ -6,8 +6,8 @@
 ### 1. Install the game
 * Install the game from ea app, launch it once
 
-### 2. Download and place files to your game's root directory
-Download the archive from [the releases](https://github.com/nocss42/GardenGate/releases) tab, launch it > go to patcher and press apply patch
+### 2. Download the latest release
+Download the archive from [the releases](https://github.com/nocss42/GardenGate/releases) tab, launch the .exe in the same prefix > go to patcher and press apply patch
 
 ### 3. Install the mods
 Use [this gw1 compatible frosty mod manager](https://github.com/Twig6943/FrostyToolsuiteGW1Linux/releases) instead of the stock one as the stock one doesn't work with wine nor gw1. Get the mods from [here](../Mods/gw1)
