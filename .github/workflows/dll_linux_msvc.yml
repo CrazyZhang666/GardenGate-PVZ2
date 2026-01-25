@@ -17,6 +17,7 @@ jobs:
         run: |
           pacman -Syu --noconfirm archlinux-keyring
           pacman -Syu --noconfirm base-devel sudo git cmake extra-cmake-modules python wine msitools ca-certificates libwbclient
+          git clone https://aur.archlinux.org/yay-bin.git && cd yay-bin && makepkg -si
 
       - name: Create build user
         run: |
@@ -34,10 +35,6 @@ jobs:
           sudo -u builder sh <<'EOF'
           set -e
           cd ~
-          git clone https://aur.archlinux.org/yay-bin.git
-          cd yay-bin
-          makepkg -si
-          cd ..
           yay -S msvc-wine-git --noconfirm
           git clone https://github.com/mstorsjo/msvc-wine
           cd msvc-wine
