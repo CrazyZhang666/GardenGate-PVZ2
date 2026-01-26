@@ -50,4 +50,4 @@ jobs:
         with:
           name: DLL
           path: |
-            build-gg/dinput8.dll
+            dinput8.dll
