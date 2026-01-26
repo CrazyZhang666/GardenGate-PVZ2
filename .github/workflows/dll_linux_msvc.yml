@@ -35,12 +35,13 @@ jobs:
           set -e
           git clone https://github.com/mstorsjo/msvc-wine
           cd msvc-wine
+          MSVC_SRC="$(pwd)/msvc"
           export WINE=$(command -v wine64 || command -v wine || false)
           $WINE wineboot
-          ./vsdownload.py --accept-license --dest $(pwd)/msvc
-          ./install.sh $(pwd)/msvc
+          ./vsdownload.py --accept-license --dest "$MSVC_SRC"
+          ./install.sh "$MSVC_SRC"
           cd ..
-          export PATH=~/my_msvc/opt/msvc/bin/x64:$PATH
+          export PATH="$MSVC_SRC/opt/msvc/bin/x64:$PATH"
           CC=cl CXX=cl cmake . -DCMAKE_BUILD_TYPE=Release -DCMAKE_SYSTEM_NAME=Windows
           make
           EOF
