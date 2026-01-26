@@ -35,7 +35,7 @@ jobs:
           set -e
           git clone https://github.com/mstorsjo/msvc-wine
           cd msvc-wine
-          MSVC_SRC="$(pwd)/msvc"
+          export MSVC_SRC="$(pwd)/msvc"
           export WINE=$(command -v wine64 || command -v wine || false)
           $WINE wineboot
           ./vsdownload.py --accept-license --dest "$MSVC_SRC"
