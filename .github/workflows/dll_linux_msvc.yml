@@ -33,7 +33,6 @@ jobs:
         run: |
           sudo -u builder sh <<'EOF'
           set -e
-          cd ~
           git clone https://github.com/mstorsjo/msvc-wine
           cd msvc-wine
           export WINE=$(command -v wine64 || command -v wine || false)
@@ -42,7 +41,7 @@ jobs:
           ./install.sh $(pwd)/msvc
           cd ..
           export PATH=~/my_msvc/opt/msvc/bin/x64:$PATH
-          CC=cl CXX=cl cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_SYSTEM_NAME=Windows
+          CC=cl CXX=cl cmake . -DCMAKE_BUILD_TYPE=Release -DCMAKE_SYSTEM_NAME=Windows
           make
           EOF
 
