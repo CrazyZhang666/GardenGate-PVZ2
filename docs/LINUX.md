@@ -71,3 +71,12 @@ winmm
 `-Client.ServerIp`
 
 `-Server.ServerPassword`
+
+### Disclaimer about machines with low ram
+
+If your frosty crashes due to oom when using large mods run this;
+```
+systemctl disable --now systemd-oomd
+systemctl stop --now systemd-oomd
+systemctl mask systemd-oomd
+```
